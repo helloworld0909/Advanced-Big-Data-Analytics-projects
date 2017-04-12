@@ -99,3 +99,5 @@ ENV/
 OJ*
 .idea/*
 *.log
+*.csv
+*/metastore_db/*
