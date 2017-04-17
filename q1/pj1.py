@@ -13,13 +13,18 @@ def toFloat(num):
     except:
         return None
 
-raw_data = sc.textFile(data_path + 'training.csv').filter(lambda line: line[0] != 'l')
+raw_data = sc.textFile(data_path + 'train.csv').filter(lambda line: line[0] != 'l')
 train_data = raw_data.map(lambda line: line.strip().split(','))
 train_X = train_data.map(lambda l: map(int, l[-1].split(' ')))
 train_Y = train_data.map(lambda l: l[:-1]).map(lambda l: map(toFloat, l))
 
-print 'train count\t' + str(train_X.count())
+raw_valid_data = sc.textFile(data_path + 'valid.csv').filter(lambda line: line[0] != 'l')
+valid_data = raw_valid_data.map(lambda line: line.strip().split(','))
+valid_X = valid_data.map(lambda l: map(int, l[-1].split(' ')))
+valid_Y = valid_data.map(lambda l: l[:-1]).map(lambda l: map(toFloat, l))
 
+print 'train count\t' + str(train_X.count())
+print 'valid count\t' + str(valid_X.count())
 
 
 
