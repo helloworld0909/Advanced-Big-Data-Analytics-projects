@@ -4,7 +4,7 @@ import util
 conf = SparkConf().setAppName('q1')
 sc = SparkContext(conf=conf)
 
-data_path = ''
+data_path = 'data'
 
 raw_data = sc.textFile(data_path + 'train.csv').filter(lambda line: line[0] != 'l')
 train_data = raw_data.map(lambda line: line.strip().split(',')).filter(lambda l: '' not in l)
@@ -46,7 +46,7 @@ spark_model.train(train, nb_epoch=50, batch_size=5, verbose=1, validation_split=
 score = spark_model.master_network.evaluate(test_X, test_Y, batch_size=5)
 print 'test score = ' + str(score)
 
-spark_model.master_network.save_weights('model_weights.h5')
+spark_model.master_network.save_weights(data_path + 'model_weights.h5')
 
 # test_image = util.load_image(data_path + 'test.csv')
 # spark_model.predict()
