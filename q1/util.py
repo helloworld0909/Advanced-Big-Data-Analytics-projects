@@ -1,4 +1,10 @@
 import numpy as np
+try:
+    from matplotlib import pyplot
+except:
+    pass
+
+data_path = 'data/'
 
 featureNames = {
     'left_eye_center_x': 0,
@@ -62,15 +68,23 @@ def load_np(filename):
     fn.close()
     return X, Y
 
-def load_image(filename):
+def load_image(filename, normalize=True):
     images = []
     fn = open(filename, 'r')
     for line in fn:
         if '0' <= line[0] <= '9':
             num, image = line.strip().split(',')
             image = map(int, image.strip().split(' '))
-            image = map(lambda pixel: pixel / 255.0, image)
+            if normalize:
+                image = map(lambda pixel: pixel / 255.0, image)
             images.append(image)
     fn.close()
     return np.array(images)
+
+def visualize(image, position):
+    img = image.reshape((96, 96))
+    imgPlot = pyplot.imshow(img, cmap='gray')
+    pyplot.scatter(position[0::2], position[1::2], marker='x', s=10)
+    pyplot.show()
+
 
