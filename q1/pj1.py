@@ -4,7 +4,7 @@ import util
 conf = SparkConf().setAppName('q1')
 sc = SparkContext(conf=conf)
 
-data_path = 'data'
+data_path = 'data/'
 
 raw_data = sc.textFile(data_path + 'train.csv').filter(lambda line: line[0] != 'l')
 train_data = raw_data.map(lambda line: line.strip().split(',')).filter(lambda l: '' not in l)
@@ -41,13 +41,16 @@ from elephas import optimizers as elephas_optimizers
 
 adagrad = elephas_optimizers.Adagrad()
 spark_model = SparkModel(sc, model, optimizer=adagrad, frequency='epoch', mode='asynchronous', num_workers=1)
-spark_model.train(train, nb_epoch=50, batch_size=5, verbose=1, validation_split=0.1)
+spark_model.train(train, nb_epoch=5, batch_size=5, verbose=1, validation_split=0.1)
 
 score = spark_model.master_network.evaluate(test_X, test_Y, batch_size=5)
 print 'test score = ' + str(score)
 
 spark_model.master_network.save_weights(data_path + 'model_weights.h5')
 
-# test_image = util.load_image(data_path + 'test.csv')
-# spark_model.predict()
+test = util.load_image(data_path + 'test.csv')
+positions = spark_model.master_network.predict(test, batch_size=5)
 
+with open('positions.txt', 'w') as output:
+    for p in positions:
+        output.write(p)

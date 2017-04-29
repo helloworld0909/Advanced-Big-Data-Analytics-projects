@@ -35,7 +35,9 @@ def load_image(filename):
     for line in fn:
         if '0' <= line[0] <= '9':
             num, image = line.strip().split(',')
-            image = image.split(' ')
-            images.append((num, image))
-    return images
+            image = map(int, image.strip().split(' '))
+            image = map(lambda pixel: pixel / 255.0, image)
+            images.append(image)
+    fn.close()
+    return np.array(images)
 
