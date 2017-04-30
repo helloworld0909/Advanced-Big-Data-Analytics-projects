@@ -1,4 +1,6 @@
 import random
+import csv
+import numpy as np
 import util
 from util import data_path
 
@@ -21,8 +23,8 @@ def plot():
     image = images[imageId]
     with open('predict.txt', 'r') as predict:
         position = predict.readlines()[imageId].strip().split(' ')
-        position = map(float, position)
-        position = map(lambda x: x*48+48, position)
+        position = list(map(float, position))
+        position = list(map(lambda x: x*48+48, position))
         print(position)
         util.visualize(image, position)
 
@@ -44,9 +46,24 @@ def predict():
     positions = model.predict(test, batch_size=1)
     print(positions)
 
+    np.savetxt('predict.txt', positions)
+
+    with open(data_path + 'IdLookupTable.csv') as id_file:
+        with open('output.csv', 'w') as output:
+            id_lookup = csv.reader(id_file)
+            headers = next(id_lookup)  # Skip the first row
+            output.write('RowId,Location\n')
+
+            for each in id_lookup:
+                rowId, imageId, featureName = each
+                p = positions[int(imageId) - 1][util.featureNames[featureName]]
+                position = float(p) * 96
+                output.write(str(rowId) + ',' + str(position) + '\n')
+
 
 if __name__ == '__main__':
     predict()
+    # plot()
 
 
 
