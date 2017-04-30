@@ -1,6 +1,10 @@
 import random
-import util
+import csv
+import numpy as np
+
+
 from util import data_path
+import util
 
 def partition():
     proportion = 0.1
@@ -22,7 +26,7 @@ def plot():
     with open('predict.txt', 'r') as predict:
         position = predict.readlines()[imageId].strip().split(' ')
         position = map(float, position)
-        position = map(lambda x: x*48+48, position)
+        position = map(lambda x: x*96, position)
         print position
         util.visualize(image, position)
 
@@ -36,13 +40,26 @@ def predict():
     print score
 
     test = util.load_image(data_path + 'test.csv')
-    print test
-    positions = model.predict(test[:10], batch_size=5)
-    print positions
+    positions = model.predict(test, batch_size=5)
     print len(positions)
+
+    np.savetxt('predict.txt', positions)
+
+    with open(data_path + 'IdLookupTable.csv') as id_file:
+        with open('output.csv', 'w') as output:
+            id_lookup = csv.reader(id_file)
+            labels = id_lookup.next()  # Skip the first row
+            output.write('RowId,Location\n')
+
+            for each in id_lookup:
+                rowId, imageId, featureName = each
+                p = positions[int(imageId) - 1][util.featureNames[featureName]]
+                position = float(p) * 96
+                output.write(str(rowId) + ',' + str(position) + '\n')
 
 if __name__ == '__main__':
     predict()
+    # plot()
 
 
 

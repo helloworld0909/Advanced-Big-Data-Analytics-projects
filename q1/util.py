@@ -41,7 +41,7 @@ featureNames = {
 
 def toFloat(num):
     try:
-        return (float(num) - 48) / 48
+        return float(num) / 96
     except:
         return None
 
@@ -57,10 +57,7 @@ def load_np(filename):
             image = map(int, line.strip().split(',')[-1].split(' '))
             image = map(lambda pixel: pixel / 255.0, image)
             for label in labels:
-                try:
-                    labelTuple.append((float(label) - 48) / 48)
-                except:
-                    labelTuple.append(None)
+                labelTuple.append(toFloat(label))
             testData_X.append(image)
             testData_Y.append(labelTuple)
     X = np.array(testData_X)
