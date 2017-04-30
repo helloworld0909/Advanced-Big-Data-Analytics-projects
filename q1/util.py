@@ -76,9 +76,9 @@ def load_image(filename, normalize=True, reshape=True):
     for line in fn:
         if '0' <= line[0] <= '9':
             num, image = line.strip().split(',')
-            image = map(int, image.strip().split(' '))
+            image = list(map(int, image.strip().split(' ')))
             if normalize:
-                image = map(lambda pixel: pixel / 255.0, image)
+                image = list(map(lambda pixel: pixel / 255.0, image))
             if reshape:
                 image = np.array(image).reshape((1, 96, 96))
             images.append(image)

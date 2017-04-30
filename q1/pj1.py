@@ -80,7 +80,7 @@ model.compile(loss='mean_squared_error', optimizer=adam)
 # spark_model = SparkModel(sc, model, optimizer=adagrad, frequency='epoch', mode='asynchronous', num_workers=1)
 # spark_model.train(train, nb_epoch=5, batch_size=4, verbose=1, validation_split=0.1)
 
-model.fit(train_X, train_Y, epochs=5, verbose=1)
+model.fit(train_X, train_Y, epochs=1, verbose=1)
 
 json_string = model.to_json()
 with open('model.json', 'w') as model_out:
