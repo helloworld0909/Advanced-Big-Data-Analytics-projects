@@ -23,7 +23,7 @@ def plot():
         position = predict.readlines()[imageId].strip().split(' ')
         position = map(float, position)
         position = map(lambda x: x*48+48, position)
-        print position
+        print(position)
         util.visualize(image, position)
 
 def predict():
@@ -37,12 +37,12 @@ def predict():
 
     test_X, test_Y = util.load_np(data_path + 'valid.csv')
     score = model.evaluate(test_X, test_Y, batch_size=5)
-    print score
+    print(score)
 
     test = util.load_image(data_path + 'test.csv')
 
     positions = model.predict(test, batch_size=1)
-    print positions
+    print(positions)
 
 
 if __name__ == '__main__':

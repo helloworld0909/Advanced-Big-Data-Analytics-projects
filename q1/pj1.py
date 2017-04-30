@@ -20,7 +20,7 @@ train_X, train_Y = util.load_np(data_path + 'train.csv')
 # train_count = train.count()
 # print 'train count\t' + str(train_count)
 
-print len(train_X)
+print(len(train_X))
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation, Flatten
@@ -82,31 +82,8 @@ model.compile(loss='mean_squared_error', optimizer=adam)
 
 model.fit(train_X, train_Y, epochs=5, verbose=1)
 
-test_X, test_Y = util.load_np(data_path + 'valid.csv')
-score = model.evaluate(test_X, test_Y)
-print 'test loss = ' + str(score)
-
 json_string = model.to_json()
 with open('model.json', 'w') as model_out:
     model_out.write(json_string)
 model.save_weights('model_weights.h5')
-
-test = util.load_image(data_path + 'test.csv')
-positions = model.predict(test)
-
-np.savetxt('predict.txt', positions)
-
-
-
-with open(data_path + 'IdLookupTable.csv') as id_file:
-    with open('output.csv', 'w') as output:
-        id_lookup = csv.reader(id_file)
-        labels = id_lookup.next()  # Skip the first row
-        output.write('RowId,Location\n')
-
-        for each in id_lookup:
-            rowId, imageId, featureName = each
-            p = positions[int(imageId) - 1][util.featureNames[featureName]]
-            position = float(p) * 48 + 48
-            output.write(str(rowId) + ',' + str(position) + '\n')
 

@@ -55,7 +55,7 @@ def load_np(filename, reshape=True):
         if '' not in labels and '0' <= line[0] <= '9':
             labelTuple = []
             image = map(int, line.strip().split(',')[-1].split(' '))
-            image = map(lambda pixel: pixel / 255.0, image)
+            image = list(map(lambda pixel: pixel / 255.0, image))
             for label in labels:
                 try:
                     labelTuple.append((float(label) - 48) / 48)
