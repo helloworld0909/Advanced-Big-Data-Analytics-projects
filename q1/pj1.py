@@ -22,29 +22,25 @@ train = train.map(lambda l: (np.array(l[0]), np.array(l[1])))
 
 print 'train count\t' + str(train.count())
 # print 'valid count\t' + str(valid.count())
-print train.sample(False, 0.003).collect()
+# print train.sample(False, 0.003).collect()
 
 from keras.models import Sequential
 from keras.layers.core import Dense, Dropout, Activation
 from keras.optimizers import RMSprop
 
 model = Sequential()
-model.add(Dense(96 * 96, input_dim=96 * 96))
-model.add(Activation('sigmoid'))
+model.add(Dense(256, input_dim=96 * 96))
 model.add(Dropout(0.1))
-model.add(Dense(128))
-model.add(Activation('sigmoid'))
+model.add(Dense(128, activation='sigmoid'))
 model.add(Dropout(0.2))
-model.add(Dense(30))
-model.add(Activation('sigmoid'))
+model.add(Dense(30, activation='sigmoid'))
 
 model.compile(loss='mean_squared_error', optimizer=RMSprop())
 
 from elephas.spark_model import SparkModel
 from elephas import optimizers as elephas_optimizers
 
-adagrad = elephas_optimizers.Adagrad()
-spark_model = SparkModel(sc, model, optimizer=adagrad, frequency='epoch', mode='asynchronous', num_workers=1)
+spark_model = SparkModel(sc, model, frequency='epoch', mode='asynchronous', num_workers=1)
 spark_model.train(train, nb_epoch=10, batch_size=8, verbose=1, validation_split=0.1)
 
 del train
