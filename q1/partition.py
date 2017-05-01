@@ -57,7 +57,7 @@ def predict():
             for each in id_lookup:
                 rowId, imageId, featureName = each
                 p = positions[int(imageId) - 1][util.featureNames[featureName]]
-                position = float(p) * 96
+                position = float(p) * 48 + 48
                 output.write(str(rowId) + ',' + str(position) + '\n')
 
 
