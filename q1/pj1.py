@@ -16,12 +16,12 @@ train = train.map(lambda l: (np.array(l[0]), np.array(l[1])))
 
 print 'train count\t' + str(train.count())
 
-model = models.CNN_2()
+model = models.CNN_1()
 
 from elephas.spark_model import SparkModel
 
-spark_model = SparkModel(sc, models, frequency='epoch', mode='asynchronous', num_workers=1)
-spark_model.train(train, nb_epoch=10, batch_size=8, verbose=1, validation_split=0.1)
+spark_model = SparkModel(sc, model, frequency='epoch', mode='asynchronous', num_workers=1)
+spark_model.train(train, nb_epoch=100, batch_size=8, verbose=1, validation_split=0.1)
 
 del train
 
