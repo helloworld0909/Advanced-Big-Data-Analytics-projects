@@ -41,7 +41,7 @@ featureNames = {
 
 def toFloat(num):
     try:
-        return (float(num) - 48) / 48
+        return float(num) / 96
     except:
         return None
 
