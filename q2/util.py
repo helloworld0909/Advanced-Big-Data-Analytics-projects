@@ -5,12 +5,12 @@ DATA_PATH = 'input/'
 nb_sample = 91223
 
 
-def sample_file(filename, step):
+def sample_file(filename, step, start=0):
     count = 0
-    out = open(DATA_PATH + filename.split('.')[0] + '_sample.txt', 'w')
+    out = open(DATA_PATH + filename.split('.')[0] + '_sample{}.txt'.format(str(start)), 'w')
     with open(DATA_PATH + filename, 'r') as input_file:
         for line in input_file:
-            if count % step == 0:
+            if count % step == start:
                 out.write(line)
             count += 1
     out.close()
@@ -20,23 +20,37 @@ def shuffle_file(filename, indices):
     out = open(DATA_PATH + filename.split('.')[0] + '_shuffle.txt', 'w')
     with open(DATA_PATH + filename, 'r') as input_file:
         lines = input_file.readlines()
+        length = len(lines)
         for index in indices:
-            out.write(lines[index])
+            if index < length:
+                out.write(lines[index])
     out.close()
 
-def feature_generator(filename):
+def item_generator(filename, buffer_size=1024):
     with open(DATA_PATH + filename, 'r') as fn:
+        buffer = []
+        cnt = 0
         for line in fn:
-            yield np.array(list(map(float, line.strip().split('\t')))).reshape(1, 4096)
+            tmp = list(map(float, line.strip().split('\t')))
+            buffer.append(np.array(tmp).reshape(1, len(tmp)))
+            cnt += 1
+            if cnt >= buffer_size:
+                for item in buffer:
+                    yield np.array(item)
+                buffer = []
+                cnt = 0
 
-def label_generator(filename):
-    with open(DATA_PATH + filename, 'r') as fn:
-        for line in fn:
-            yield np.array(list(map(float, line.strip().split('\t')))).reshape(1, 239)
+def xy_generator(x_generator, y_generator, batch_size=32):
+    x_batch = []
+    y_batch = []
+    generator = zip(x_generator, y_generator)
+    while True:
+        for _ in range(batch_size):
+            x, y = next(generator)
+            x_batch.append(x)
+            y_batch.append(y)
+        yield np.array(x_batch), np.array(y_batch)
 
-
-def xy_generator(x_generator, y_generator):
-    return zip(x_generator, y_generator)
 
 def load_data(filename):
     with open(DATA_PATH + filename, 'r') as fn:
@@ -52,11 +66,17 @@ def save_model(model):
     model.save_weights('model_weights.h5')
 
 if __name__ == '__main__':
-    indices = list(range(9123))
-    random.shuffle(indices)
-    print(indices)
-    shuffle_file('FCVID_CNN_sample.txt', indices)
-    shuffle_file('FCVID_IDT_Traj_sample.txt', indices)
-    shuffle_file('FCVID_MFCC_sample.txt', indices)
-    shuffle_file('FCVID_Label_sample.txt', indices)
-    pass
+    for i in range(1,10):
+        indices = list(range(9123))
+        random.shuffle(indices)
+        print(i)
+        sample_file('FCVID_CNN.txt', 10, start=i)
+        sample_file('FCVID_IDT_Traj.txt', 10, start=i)
+        sample_file('FCVID_MFCC.txt', 10, start=i)
+        sample_file('FCVID_Label.txt', 10, start=i)
+
+        shuffle_file('FCVID_CNN_sample{}.txt'.format(str(i)), indices)
+        shuffle_file('FCVID_IDT_Traj_sample{}.txt'.format(str(i)), indices)
+        shuffle_file('FCVID_MFCC_sample{}.txt'.format(str(i)), indices)
+        shuffle_file('FCVID_Label_sample{}.txt'.format(str(i)), indices)
+
