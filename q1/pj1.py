@@ -1,3 +1,4 @@
+import csv
 import numpy as np
 from pyspark import SparkContext, SparkConf
 
@@ -33,7 +34,6 @@ json_string = spark_model.master_network.to_json()
 with open('model.json', 'w') as model_out:
     model_out.write(json_string)
 spark_model.master_network.save_weights('model_weights.h5')
-
 
 
 
