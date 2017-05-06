@@ -1,3 +1,4 @@
+import json
 from keras.models import model_from_json
 
 import util
@@ -33,18 +34,32 @@ def fit_generator():
 
 
 def fit():
-    x_train_CNN = util.load_data('FCVID_CNN_sample_shuffle.txt')
-    x_train_IDT = util.load_data('FCVID_IDT_Traj_sample_shuffle.txt')
-    x_train_MFCC = util.load_data('FCVID_MFCC_sample_shuffle.txt')
-    y_train = util.load_data('FCVID_Label_sample_shuffle.txt')
+    sample_num = 4
+    assert sample_num < 9
 
-    model = model_from_json(open('models/model.json').read())
+    x_train_CNN = util.load_data('FCVID_CNN_sample{}_shuffle.txt'.format(sample_num))
+    x_train_IDT = util.load_data('FCVID_IDT_Traj_sample{}_shuffle.txt'.format(sample_num))
+    x_train_MFCC = util.load_data('FCVID_MFCC_sample{}_shuffle.txt'.format(sample_num))
+    y_train = util.load_data('FCVID_Label_sample{}_shuffle.txt'.format(sample_num))
+
+    x_test_CNN = util.load_data('FCVID_CNN_sample9_shuffle.txt')
+    x_test_IDT = util.load_data('FCVID_IDT_Traj_sample9_shuffle.txt')
+    x_test_MFCC = util.load_data('FCVID_MFCC_sample9_shuffle.txt')
+    y_test = util.load_data('FCVID_Label_sample9_shuffle.txt')
+
+    # model = model_from_json(open('models/model.json').read())
+    model = models.dense_fusion()
     model.load_weights('models/model_weights.h5')
     models.compile_model(model)
 
-    model.fit([x_train_CNN, x_train_IDT, x_train_MFCC], y_train, epochs=150, verbose=1, batch_size=32, validation_split=0.1)
+    history = model.fit([x_train_CNN, x_train_IDT, x_train_MFCC], y_train, epochs=10, verbose=1, batch_size=128, validation_data=([x_test_CNN, x_test_IDT, x_test_MFCC], y_test))
 
     util.save_model(model)
+
+    with open('history.txt', 'w') as hist_file:
+        history_string = json.dumps(history.history)
+        hist_file.write(history_string)
+
 
 if __name__ == '__main__':
     fit()

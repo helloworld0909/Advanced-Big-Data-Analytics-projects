@@ -48,7 +48,7 @@ def dense_fusion():
     fusion = Dense(nb_label, activation='softmax', kernel_regularizer=l2(0.02))(fusion)
 
     model = Model(inputs=[cnn_input, idt_input, mfcc_input], outputs=fusion)
-    model.compile(optimizer=Adam(), loss=categorical_crossentropy, metrics=['accuracy'])
+    model.compile(optimizer=Adam(lr=0.00001, decay=0.1), loss=categorical_crossentropy, metrics=['accuracy'])
 
     return model
 
