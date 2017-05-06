@@ -51,3 +51,7 @@ def dense_fusion():
     model.compile(optimizer=Adam(), loss=categorical_crossentropy, metrics=['accuracy'])
 
     return model
+
+def compile_model(model):
+    model.compile(optimizer=Adam(), loss=categorical_crossentropy, metrics=['accuracy'])
+

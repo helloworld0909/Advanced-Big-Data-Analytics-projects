@@ -26,13 +26,21 @@ def shuffle_file(filename, indices):
                 out.write(lines[index])
     out.close()
 
-def item_generator(filename, buffer_size=1024):
+def merge_file(filename, num):
+    with open(DATA_PATH + filename.split('.')[0] + '_train.txt', 'w') as output_file:
+        for index in range(1, num):
+            fn = open(DATA_PATH + filename.split('.')[0] + '_sample{}'.format(index) + '_shuffle.txt', 'r')
+            for line in fn:
+                output_file.write(line)
+            fn.close()
+
+def item_generator(filename, buffer_size=4096):
     with open(DATA_PATH + filename, 'r') as fn:
         buffer = []
         cnt = 0
         for line in fn:
             tmp = list(map(float, line.strip().split('\t')))
-            buffer.append(np.array(tmp).reshape(1, len(tmp)))
+            buffer.append(np.array(tmp).reshape(len(tmp)))
             cnt += 1
             if cnt >= buffer_size:
                 for item in buffer:
@@ -40,16 +48,26 @@ def item_generator(filename, buffer_size=1024):
                 buffer = []
                 cnt = 0
 
-def xy_generator(x_generator, y_generator, batch_size=32):
-    x_batch = []
+def xy_generator(x1_generator, x2_generator, x3_generator, y_generator, batch_size=32):
+    x1_batch = []
+    x2_batch = []
+    x3_batch = []
     y_batch = []
-    generator = zip(x_generator, y_generator)
     while True:
         for _ in range(batch_size):
-            x, y = next(generator)
-            x_batch.append(x)
+            x1 = next(x1_generator)
+            x2 = next(x2_generator)
+            x3 = next(x3_generator)
+            y = next(y_generator)
+            x1_batch.append(x1)
+            x2_batch.append(x2)
+            x3_batch.append(x3)
             y_batch.append(y)
-        yield np.array(x_batch), np.array(y_batch)
+        yield [np.array(x1_batch), np.array(x2_batch), np.array(x3_batch)], np.array(y_batch)
+        x1_batch = []
+        x2_batch = []
+        x3_batch = []
+        y_batch = []
 
 
 def load_data(filename):
@@ -66,17 +84,9 @@ def save_model(model):
     model.save_weights('model_weights.h5')
 
 if __name__ == '__main__':
-    for i in range(1,10):
-        indices = list(range(9123))
-        random.shuffle(indices)
-        print(i)
-        sample_file('FCVID_CNN.txt', 10, start=i)
-        sample_file('FCVID_IDT_Traj.txt', 10, start=i)
-        sample_file('FCVID_MFCC.txt', 10, start=i)
-        sample_file('FCVID_Label.txt', 10, start=i)
+    merge_file('FCVID_CNN.txt', 10)
+    merge_file('FCVID_IDT_Traj.txt', 10)
+    merge_file('FCVID_MFCC.txt', 10)
+    merge_file('FCVID_Label.txt', 10)
 
-        shuffle_file('FCVID_CNN_sample{}.txt'.format(str(i)), indices)
-        shuffle_file('FCVID_IDT_Traj_sample{}.txt'.format(str(i)), indices)
-        shuffle_file('FCVID_MFCC_sample{}.txt'.format(str(i)), indices)
-        shuffle_file('FCVID_Label_sample{}.txt'.format(str(i)), indices)
 
