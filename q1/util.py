@@ -45,7 +45,7 @@ def toFloat(num):
     except:
         return None
 
-def load_np(filename):
+def load_np(filename, reshape=True):
     fn = open(filename, 'r')
     testFile = fn.readlines()
     testData_X = []
@@ -55,9 +55,14 @@ def load_np(filename):
         if '' not in labels and '0' <= line[0] <= '9':
             labelTuple = []
             image = map(int, line.strip().split(',')[-1].split(' '))
-            image = map(lambda pixel: pixel / 255.0, image)
+            image = list(map(lambda pixel: pixel / 255.0, image))
             for label in labels:
-                labelTuple.append(toFloat(label))
+                try:
+                    labelTuple.append((float(label) - 48) / 48)
+                except:
+                    labelTuple.append(None)
+            if reshape:
+                image = np.array(image).reshape((1, 96, 96))
             testData_X.append(image)
             testData_Y.append(labelTuple)
     X = np.array(testData_X)
@@ -65,15 +70,17 @@ def load_np(filename):
     fn.close()
     return X, Y
 
-def load_image(filename, normalize=True):
+def load_image(filename, normalize=True, reshape=True):
     images = []
     fn = open(filename, 'r')
     for line in fn:
         if '0' <= line[0] <= '9':
             num, image = line.strip().split(',')
-            image = map(int, image.strip().split(' '))
+            image = list(map(int, image.strip().split(' ')))
             if normalize:
-                image = map(lambda pixel: pixel / 255.0, image)
+                image = list(map(lambda pixel: pixel / 255.0, image))
+            if reshape:
+                image = np.array(image).reshape((1, 96, 96))
             images.append(image)
     fn.close()
     return np.array(images)
