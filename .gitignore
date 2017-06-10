@@ -101,3 +101,10 @@ OJ*
 *.log
 *.csv
 */metastore_db/*
+metastore_db/*
+*.exe
+*.lib
+*.exp
+*.txt
+*.h5
+*.json
